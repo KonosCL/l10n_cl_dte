@@ -193,21 +193,24 @@ class invoice(models.Model):
         return data
 
     def _get_xsd_types(self):
-        return  {
-            'doc': 'DTE_v10.xsd',
-            'env': 'EnvioDTE_v10.xsd',
-            'env_boleta': 'EnvioBOLETA_v11.xsd',
-            'recep' : 'Recibos_v10.xsd',
-            'env_recep' : 'EnvioRecibos_v10.xsd',
-            'env_resp': 'RespuestaEnvioDTE_v10.xsd',
-            'sig': 'xmldsignature_v10.xsd'
+        return {
+          'doc': 'DTE_v10.xsd',
+          'env': 'EnvioDTE_v10.xsd',
+          'env_boleta': 'EnvioBOLETA_v11.xsd',
+          'recep' : 'Recibos_v10.xsd',
+          'env_recep' : 'EnvioRecibos_v10.xsd',
+          'env_resp': 'RespuestaEnvioDTE_v10.xsd',
+          'sig': 'xmldsignature_v10.xsd'
         }
+
+    def _get_xsd_file(self, validacion, path=False):
+        validacion_type = self._get_xsd_types()
+        return (path or xsdpath) + validacion_type[validacion]
 
     def xml_validator(self, some_xml_string, validacion='doc'):
         if validacion == 'bol':
             return True
-        validacion_type = self._get_xsd_types()
-        xsd_file = xsdpath+validacion_type[validacion]
+        xsd_file = self._get_xsd_file(validacion)
         try:
             xmlschema_doc = etree.parse(xsd_file)
             xmlschema = etree.XMLSchema(xmlschema_doc)
@@ -477,8 +480,8 @@ version="1.0">
             obj = comp_id
             if not obj or not obj.cert:
                 obj = self.env['res.users'].search([("authorized_users_ids","=", user.id)])
-                if not obj.cert or not user.id in obj.authorized_users_ids.ids:
-                    return False
+            if not obj.cert or not user.id in obj.authorized_users_ids.ids:
+                return False
         signature_data = {
             'subject_name': obj.name,
             'subject_serial_number': obj.subject_serial_number,
@@ -495,11 +498,11 @@ version="1.0">
         if not obj:
             obj = user = self.env.user
         if not obj.cert:
-            obj = self.env['res.company'].browse([comp_id.id])
+            obj = comp_id
             if not obj or not obj.cert:
                 obj = self.env['res.users'].search([("authorized_users_ids","=", user.id)])
-                if not obj.cert or not user.id in obj.authorized_users_ids.ids:
-                    return False
+            if not obj.cert or not user.id in obj.authorized_users_ids.ids:
+                return False
         signature_data = {
             'subject_name': obj.name,
             'subject_serial_number': obj.subject_serial_number,
