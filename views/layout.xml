@@ -168,7 +168,7 @@
                                </td>
                                <td style="max-height:8px;line-height:10px !important;"><span t-field="l.product_id.default_code"/></td>
 
-                               <td style="max-height:8px;line-height:10px !important;"><span t-esc="l.product_id.name"/> <t t-if="l.product_id.name != l.name"> - <span t-esc="l.name"/></t></td>
+                               <td style="max-height:8px;line-height:10px !important;"><span t-esc="l.product_id.name"/></td>
 
                              
 
@@ -413,7 +413,7 @@
                       <p style="text-align:center;color:red; font-size:8px;">
                         Timbre Electrónico SII
                         <br/>
-                        Resolución 393/2016 Verifique documento: www.sii.cl
+                        Resolución <t t-esc='company.dte_resolution_number'/> de <t t-esc='company.dte_resolution_date[:4]'/> Verifique documento: www.sii.cl
                       </p>
                   </div>
                 </div>
@@ -520,7 +520,7 @@
                     <p style="text-align:center;color:red; font-size:8px;">
                       Timbre Electrónico SII
                       <br/>
-                      Resolución 393/2016 Verifique documento: www.sii.cl
+                      Resolución <t t-esc='company.dte_resolution_number'/> de <t t-esc='company.dte_resolution_date[:4]'/> Verifique documento: www.sii.cl
                     </p>
                 </div>
               </div>
