@@ -24,9 +24,9 @@
         <field name="new_partner" />
         <field name="partner_id" />
         <field name="amount" />
-        <field name="currency_id" />
+<!--    <field name="currency_id" /> Por Ahora Quitamos La Moneda HF-->
         <field name="invoice_line_ids" />
-        <field name="company_id" />
+ <!--       <field name="company_id" />  Esto Sirve para Multicompañía -->
         <field name="dte_id" />
         <field name="state" />
         <button name="acept_document" string="Aceptar" type="object" attrs="{'invisible':[('state', '!=', 'draft')]}"/>
