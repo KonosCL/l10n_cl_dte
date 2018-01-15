@@ -96,6 +96,18 @@ try:
 except ImportError:
     _logger.info('Cannot import signxml')
 
+
+try:
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives.serialization import load_pem_private_key
+    import OpenSSL
+    from OpenSSL import crypto
+    type_ = crypto.FILETYPE_PEM
+except  ImportError:
+    _logger.info('Cannot import OpenSSL library')
+
+
+
 # timbre patrón. Permite parsear y formar el
 # ordered-dict patrón corespondiente al documento
 timbre  = """<TED version="1.0"><DD><RE>99999999-9</RE><TD>11</TD><F>1</F>\
@@ -448,11 +460,6 @@ version="1.0">
         sig_root = Element("Signature",attrib={'xmlns':'http://www.w3.org/2000/09/xmldsig#'})
         sig_root.append(etree.fromstring(signed_info_c14n))
         signature_value = SubElement(sig_root, "SignatureValue")
-        from cryptography.hazmat.backends import default_backend
-        from cryptography.hazmat.primitives.serialization import load_pem_private_key
-        import OpenSSL
-        from OpenSSL.crypto import *
-        type_ = FILETYPE_PEM
         key=OpenSSL.crypto.load_privatekey(type_,privkey.encode('ascii'))
         signature= OpenSSL.crypto.sign(key,signed_info_c14n,'sha1')
         signature_value.text =textwrap.fill(base64.b64encode(signature),64)
@@ -956,7 +963,8 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
                                                 'model':'account.invoice',
                                                 'user_id':self.env.user.id,
                                                 'tipo_trabajo': 'pasivo',
-                                                'date_time': (datetime.now() + timedelta(hours=12)),
+                                                'date_time': (datetime.now() + timedelta(hours=self.env['ir.config_parameter'].sudo().get_param('account.auto_send_dte', default=12))),
+ +                                              'send_email': False if inv.company_id.dte_service_provider=='SIIHOMO' or self.env['ir.config_parameter'].sudo().get_param('account.auto_send_email', default=True) else True,
                                                 })
             if inv.purchase_to_done:
                 for ptd in inv.purchase_to_done:
