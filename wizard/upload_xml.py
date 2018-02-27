@@ -575,23 +575,36 @@ class UploadXMLWizard(models.TransientModel):
 
         return [0,0, data]
 
+    def _create_tpo_doc(self, ref):
+        vals = {
+                'name': ref.get('RazonRef', '') + ' ' + str(ref['TpoDocRef'])
+            }
+        if str(ref['TpoDocRef']).isdigit():
+            vals.update({
+                    'sii_code': ref['TpoDocRef'],
+                })
+        else:
+            vals.update({
+                    'doc_code_prefix': ref['TpoDocRef'],
+                    'sii_code': 801,
+                })
+        return self.env['sii.document_class'].create(vals)
+
     def _prepare_ref(self, ref):
-        try:
-            tpo = self.env['sii.document_class'].search([('sii_code', '=', ref['TpoDocRef'])])
-        except:
-            tpo = self.env['sii.document_class'].search([('sii_code', '=', 801)])
+        query = []
+        if str(ref['TpoDocRef']).isdigit():
+            query.append(('sii_code', '=', ref['TpoDocRef']))
+        else:
+            query.append(('doc_code_prefix', '=', ref['TpoDocRef']))
+        tpo = self.env['sii.document_class'].search(query)
         if not tpo:
-            raise UserError(_('No existe el tipo de documento'))
-        folio = ref['FolioRef']
-        fecha = ref['FchRef']
-        cod_ref = ref['CodRef'] if 'CodRef' in ref else None
-        motivo = ref['RazonRef'] if 'RazonRef' in ref else None
+            tpo = self._create_tpo_doc(ref)
         return [0,0,{
-            'origen' : folio,
+            'origen' : ref.get('FolioRef', None),
             'sii_referencia_TpoDocRef' : tpo.id,
-            'sii_referencia_CodRef' : cod_ref,
-            'motivo' : motivo,
-            'fecha_documento' : fecha,
+            'sii_referencia_CodRef' : ref.get('CodRef', False),
+            'motivo' : ref.get('RazonRef', False),
+            'fecha_documento' : ref.get('FchRef', False),
         }]
 
     def _prepare_invoice(self, dte, company_id, journal_document_class_id):
@@ -686,17 +699,22 @@ class UploadXMLWizard(models.TransientModel):
         ).id
         if 'ImptoReten' in dte['Encabezado']['Totales']:
             Totales = dte['Encabezado']['Totales']
-            imp = self._buscar_impuesto(name="OtrosImps_" + str(Totales['ImptoReten']['TipoImp']), sii_code=Totales['ImptoReten']['TipoImp'])
-            lines.append([0,0,{
-                'invoice_line_tax_ids': [ imp ],
-                'product_id': product_id,
-                'name': 'MontoImpuesto %s' % str(Totales['ImptoReten']['TipoImp']),
-                'price_unit': Totales['ImptoReten']['MontoImp'],
-                'quantity': 1,
-                'price_subtotal': Totales['ImptoReten']['MontoImp'],
-                'account_id':  journal_document_class_id.journal_id.default_debit_account_id.id
-                }]
-            )
+            if 'TipoImp' in Totales['ImptoReten']:
+                Totales = [Totales['ImptoReten']['TipoImp']]
+            else:
+                Totales = Totales['ImptoReten']
+            for i in Totales:
+                imp = [self._buscar_impuesto(name="OtrosImps_" + str(i['TipoImp']), sii_code=i['TipoImp'])]
+                lines.append([0,0,{
+                    'invoice_line_tax_ids': [ imp ],
+                    'product_id': product_id,
+                    'name': 'MontoImpuesto %s' % str(i['TipoImp']),
+                    'price_unit': i['MontoImp'],
+                    'quantity': 1,
+                    'price_subtotal': i['MontoImp'],
+                    'account_id':  journal_document_class_id.journal_id.default_debit_account_id.id
+                    }]
+                )
         #if 'IVATerc' in dte['Encabezado']['Totales']:
         #    imp = self._buscar_impuesto(name="IVATerc" )
         #    lines.append([0,0,{
