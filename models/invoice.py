@@ -963,7 +963,7 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
                                                 'model':'account.invoice',
                                                 'user_id':self.env.user.id,
                                                 'tipo_trabajo': 'pasivo',
-                                                'date_time': (datetime.now() + timedelta(hours=self.env['ir.config_parameter'].sudo().get_param('account.auto_send_dte', default=12))),
+                                                'date_time': (datetime.now() + timedelta(hours=int(self.env['ir.config_parameter'].sudo().get_param('account.auto_send_dte', default=12)))),
                                                 'send_email': False if inv.company_id.dte_service_provider=='SIIHOMO' or self.env['ir.config_parameter'].sudo().get_param('account.auto_send_email', default=True) else True,
                                                 })
             if inv.purchase_to_done:
