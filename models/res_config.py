@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from ast import literal_eval
 
-from openerp import api, fields, models
+from odoo import api, fields, models
 
 class ResConfigSettings(models.TransientModel):
     _inherit = 'account.config.settings'
