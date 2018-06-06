@@ -1221,7 +1221,10 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
             elif qty < 0:
                 raise UserError("NO puede ser menor que 0")
             if not no_product:
-                lines['UnmdItem'] = line.uom_id.name[:4]
+                if line.uom_id.name:
+                    lines['UnmdItem'] = line.uom_id.name[:4]
+                else:
+                    lines['UnmdItem'] = 'UNI'
                 lines['PrcItem'] = round(line.price_unit, 4)
             if line.discount > 0:
                 lines['DescuentoPct'] = line.discount
