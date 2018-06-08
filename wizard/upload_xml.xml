@@ -10,9 +10,11 @@
                         <field name="dte_id" invisible="True"/>
                         <field name="document_id" invisible="True"/>
                         <field name="xml_file" filename="filename" required="True"/>
+                        <field name="num_dtes"/>
                         <field name="filename" invisible="True"/>
                         <field name="action" widget="radio"/>
                         <field name="option" widget="radio"/>
+                        <field name="type"/>
                     </group>
                     <footer>
                         <button string="Confirm" name="confirm" type="object" class="oe_highlight" />
