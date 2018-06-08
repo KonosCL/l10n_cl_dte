@@ -43,7 +43,7 @@ class ValidarDTEWizard(models.TransientModel):
     )
     option = fields.Selection(
         [
-            ('accept', 'Aceptar'),
+            ('acept', 'Aceptar'),
             ('reject', 'Rechazar'),
         ],
         string="Opción",

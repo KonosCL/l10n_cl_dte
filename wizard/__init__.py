@@ -5,4 +5,3 @@ from . import masive_send_dte
 from . import upload_xml
 from . import validar
 from . import masive_dte_process
-from . import masive_dte_accept
