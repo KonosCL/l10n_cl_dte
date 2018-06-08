@@ -58,6 +58,24 @@ class UploadXMLWizard(models.TransientModel):
         string="Opción",
     )
 
+    num_dtes = fields.Integer(
+        string="Número de DTES",
+        readonly=True,
+    )
+    type = fields.Selection(
+        [
+            ('ventas', 'Ventas'),
+            ('compras', 'Compras'),
+        ],
+        string="Tipo de Operación",
+        default='compras',
+    )
+
+    @api.onchange('xml_file')
+    def get_num_dtes(self):
+        if self.xml_file:
+            self.num_dtes = len(self._get_dtes())
+
     @api.multi
     def confirm(self, ret=False):
         context = dict(self._context or {})
@@ -489,7 +507,8 @@ class UploadXMLWizard(models.TransientModel):
                     ('new_product', '=',  line['NmbItem'] + '' + code),
                     ('product_description', '=', line['DescItem'] if 'DescItem' in line else line['NmbItem']),
                     ('document_id', '=', document_id.id)
-                ]
+                ],
+                limit=1,
             )
             if line_id:
                 if line_id.product_id:
@@ -757,13 +776,16 @@ class UploadXMLWizard(models.TransientModel):
             except:
                 Detalles = dte['Detalle']
             for line in Detalles:
+                
                 new_line = self._prepare_line(line, document_id=document_id, journal=journal_document_class_id.journal_id, type=data['type'], price_included=price_included)
                 if new_line:
+                    
                     lines.append(new_line)
         product_id = self.env['product.product'].search([
                 ('product_tmpl_id', '=', self.env.ref('l10n_cl_dte.product_imp').id),
             ]
         ).id
+        
         if 'ImptoReten' in dte['Encabezado']['Totales']:
             Totales = dte['Encabezado']['Totales']
             if 'TipoImp' in Totales['ImptoReten']:
@@ -841,12 +863,15 @@ class UploadXMLWizard(models.TransientModel):
         if inv:
             return inv
         Totales = documento.find("{http://www.sii.cl/SiiDte}Encabezado/{http://www.sii.cl/SiiDte}Totales")
+        _logger.warning(documento)
         data = self._get_data(documento, company_id)
         inv = self.env['account.invoice'].create(data)
+        
         monto_xml = float(Totales.find('{http://www.sii.cl/SiiDte}MntTotal').text)
         if inv.amount_total == monto_xml:
             return inv
         inv.amount_total = monto_xml
+        
         for t in inv.tax_line_ids:
             if Totales.find('{http://www.sii.cl/SiiDte}TasaIVA') is not None and t.tax_id.amount == float(Totales.find('{http://www.sii.cl/SiiDte}TasaIVA').text):
                 t.amount = float(Totales.find('{http://www.sii.cl/SiiDte}IVA').text)
@@ -930,11 +955,14 @@ class UploadXMLWizard(models.TransientModel):
                             ('vat','=', self.format_rut(documento.find("{http://www.sii.cl/SiiDte}Encabezado/{http://www.sii.cl/SiiDte}Receptor/{http://www.sii.cl/SiiDte}RUTRecep").text)),
                         ],
                         limit=1,
-                    )
+                     )
+
+
                 inv = self._create_inv(
                     documento,
                     company_id,
                 )
+                
                 if self.document_id :
                     self.document_id.invoice_id = inv.id
                 if inv:
