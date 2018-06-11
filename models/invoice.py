@@ -1058,9 +1058,18 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
             Receptor['Contacto'] = self._acortar_str(self.partner_id.phone or self.commercial_partner_id.phone or self.partner_id.email, 80)
         if (self.commercial_partner_id.email or self.commercial_partner_id.dte_email or self.partner_id.email or self.partner_id.dte_email) and not self._es_boleta():
             Receptor['CorreoRecep'] = self.commercial_partner_id.dte_email or self.partner_id.dte_email or self.commercial_partner_id.email or self.partner_id.email
-        Receptor['DirRecep'] = self._acortar_str((self.partner_id.street or self.commercial_partner_id.street) + ' ' + (self.partner_id.street2 or self.commercial_partner_id.street2 or ''),70)
-        Receptor['CmnaRecep'] = self.partner_id.city_id.name or self.commercial_partner_id.city_id.name
-        Receptor['CiudadRecep'] = self.partner_id.city or self.commercial_partner_id.city
+        try:
+            Receptor['DirRecep'] = self._acortar_str((self.partner_id.street or self.commercial_partner_id.street) + ' ' + (self.partner_id.street2 or self.commercial_partner_id.street2 or ''),70)
+        except:
+            raise UserError(_('''Revisar Direccion del partner, No posee'''))
+        try:
+            Receptor['CmnaRecep'] = self.partner_id.city_id.name or self.commercial_partner_id.city_id.name
+        except:
+            raise UserError(_('''Revisar Comuna del partner, No posee'''))
+        try:
+            Receptor['CiudadRecep'] = self.partner_id.city or self.commercial_partner_id.city
+        except:
+            raise UserError(_('''Revisar Ciudad del partner, No posee'''))
         return Receptor
 
     def _totales_otra_moneda(self, currency_id, MntExe, MntNeto, IVA, TasaIVA, ImptoReten, MntTotal=0):
