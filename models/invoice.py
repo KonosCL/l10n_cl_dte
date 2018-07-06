@@ -176,6 +176,36 @@ class invoice(models.Model):
            FchResol, NroResol, TmstFirmaEnv, SubTotDTE, EnvioDTE)
         return xml
 
+    @api.model
+    def _arregla_str(self, texto, size=1):
+        c = 0
+        cadena = ""
+        special_chars = [
+         [u'á', 'a'],
+         [u'é', 'e'],
+         [u'í', 'i'],
+         [u'ó', 'o'],
+         [u'ú', 'u'],
+         [u'ñ', 'n'],
+         [u'Á', 'A'],
+         [u'É', 'E'],
+         [u'Í', 'I'],
+         [u'Ó', 'O'],
+         [u'Ú', 'U'],
+         [u'Ñ', 'N']]
+
+        while c < size and c < len(texto):
+            cadena += texto[c]
+            c += 1
+
+        
+        for char in special_chars:
+          try:
+            cadena = cadena.replace(char[0], char[1])
+          except:
+            pass
+        return cadena
+
     def time_stamp(self, formato='%Y-%m-%dT%H:%M:%S'):
         tz = pytz.timezone('America/Santiago')
         return datetime.now(tz).strftime(formato)
@@ -1193,9 +1223,10 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
         if no_product:
             result['TED']['DD']['MNT'] = 0
         for line in self.invoice_line_ids:
-            result['TED']['DD']['IT1'] = self._acortar_str(line.product_id.name, 40)
             if line.product_id.default_code:
-                result['TED']['DD']['IT1'] = self._acortar_str(line.product_id.name.replace('['+line.product_id.default_code+'] ',''),40)
+                result['TED']['DD']['IT1'] = self._arregla_str(line.product_id.name.replace('['+line.product_id.default_code+'] ','')[:40])
+            else:
+                result['TED']['DD']['IT1'] = self._arregla_str(line.product_id.name[:40])
             break
 
         resultcaf = self.get_caf_file()

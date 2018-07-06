@@ -41,7 +41,7 @@
                 <div class="row">
                     <div class="col-xs-5" style="width:420px !important; text-align:center;">
                         <img t-if="logo" t-att-src="'data:image/png;base64,%s' % logo" style="max-height: 45px;"/>
-                        <h4 style="text-align:lef;text-transform:uppercase;font-weight:900;font-size:15px;color:black;">
+                        <h4 style="text-align:lef;text-transform:uppercase;font-weight:900;font-size:18px;color:black;">
                             <span t-field="company.name"/>
                         </h4>
                         <p style="text-align:center;font-size:14px;color:black; text-transform:uppercase;">
