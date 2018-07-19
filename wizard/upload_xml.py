@@ -473,7 +473,8 @@ class UploadXMLWizard(models.TransientModel):
                     ('new_product', '=',  line['NmbItem'] + '' + code),
                     ('product_description', '=', line['DescItem'] if 'DescItem' in line else line['NmbItem']),
                     ('document_id', '=', document_id.id)
-                ]
+                ],
+                limit=1,
             )
             if line_id:
                 if line_id.product_id:
