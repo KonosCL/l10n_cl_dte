@@ -1156,7 +1156,7 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
         if not self.commercial_partner_id.vat:
             raise UserError(_("Fill Partner VAT"))
         result['TED']['DD']['RR'] = self.format_vat(self.commercial_partner_id.vat)
-        result['TED']['DD']['RSR'] = self._acortar_str(self.commercial_partner_id.name,40)
+        result['TED']['DD']['RSR'] = self._arregla_str(self.commercial_partner_id.name[:40])
         result['TED']['DD']['MNT'] = int(round(self.amount_total))
         if no_product:
             result['TED']['DD']['MNT'] = 0
@@ -1234,10 +1234,12 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
             #   lines['ItemEspectaculo'] =
 #            if self._es_boleta():
 #                lines['RUTMandante']
-            lines['NmbItem'] = self._acortar_str(line.product_id.name,80) #
-            lines['DscItem'] = self._acortar_str(line.name, 1000) #descripción más extenza
+            #lines['NmbItem'] = self._acortar_str(line.product_id.name,80) #
+            lines['NmbItem'] = self._arregla_str(line.product_id.name[:80])
+            #lines['DscItem'] = self._acortar_str(line.name, 1000) #descripción más extenza
+            lines['DscItem'] = self._arregla_str(line.name[:1000])
             if line.product_id.default_code:
-                lines['NmbItem'] = self._acortar_str(line.product_id.name.replace('['+line.product_id.default_code+'] ',''),80)
+                lines['NmbItem'] = self._arregla_str(line.product_id.name.replace('['+line.product_id.default_code+'] ','')[:80])
             #lines['InfoTicket']
             qty = round(line.quantity, 4)
             if not no_product:
