@@ -169,7 +169,20 @@
                                    <span t-field="l.uom_id" groups="product.group_uom"/>
                                </td>
                                <td style="max-height:8px;line-height:10px !important;"><span t-field="l.product_id.default_code"/></td>
-                               <td style="max-height:8px;line-height:10px !important;"><span t-field="l.product_id.name"/></td>
+                               <td style="max-height:8px;line-height:10px !important;">
+                                  <t t-if="l.product_id.default_code"><span  t-raw="l.name.split(')')[0].replace('(','').replace('['+l.product_id.default_code+'] ', ' ')[:60]"/></t>
+                                  <t t-if="not l.product_id.default_code"><span t-field="l.name"/></t>
+
+
+
+
+                               </td>
+
+
+
+
+
+
                                <td class="text-left" style="max-height:8px;line-height:10px !important;">
                                    <span t-field="l.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
                                </td>
