@@ -990,7 +990,7 @@ www.sii.cl'''.format(folio, folio_inicial, folio_final)
                                                 'model':'account.invoice',
                                                 'user_id':self.env.user.id,
                                                 'tipo_trabajo': 'pasivo',
-                                                'date_time': (datetime.now() + timedelta(hours=12)),
+                                                'date_time': (datetime.now() + timedelta(hours=1)),
                                                 })
             if inv.purchase_to_done:
                 for ptd in inv.purchase_to_done:
